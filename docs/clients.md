@@ -11,10 +11,11 @@ An alternative <a href="https://usefulpcguide.com/17318/create-your-own-vpn/" ta
 ---
 * Platforms
   * [Windows](#windows)
-  * [OS X](#os-x)
+  * [OS X (macOS)](#os-x)
   * [Android](#android)
-  * [iOS](#ios)
+  * [iOS (iPhone/iPad)](#ios)
   * [Chromebook](#chromebook)
+  * [Linux](#linux)
 
 ### Windows ###
 
@@ -27,10 +28,10 @@ An alternative <a href="https://usefulpcguide.com/17318/create-your-own-vpn/" ta
 1. Click **Use my Internet connection (VPN)**.
 1. Enter `Your VPN Server IP` in the **Internet address** field.
 1. Enter anything you like in the **Destination name** field, and then click **Create**.
-1. Right-click on the wireless/network icon in your system tray, select **Open Network and Sharing Center**.
-1. On the left, click **Change adapter settings**. Right-click on the new VPN entry and choose **Properties**.
+1. Return to **Network and Sharing Center**. On the left, click **Change adapter settings**.
+1. Right-click on the new VPN entry and choose **Properties**.
 1. Click the **Security** tab. Select "Layer 2 Tunneling Protocol with IPsec (L2TP/IPSec)" for the **Type of VPN**.
-1. Click **Allow these protocols**. Select "Challenge Handshake Authentication Protocol (CHAP)" and deselect all others.
+1. Click **Allow these protocols**. Check "Challenge Handshake Authentication Protocol (CHAP)" and uncheck all others.
 1. Click the **Advanced settings** button.
 1. Select **Use preshared key for authentication** and enter `Your VPN IPsec PSK` for the **Key**.
 1. Click **OK** to close the **Advanced settings**.
@@ -54,11 +55,11 @@ An alternative <a href="https://usefulpcguide.com/17318/create-your-own-vpn/" ta
 1. Enter `Your VPN Password` in the **Password** field.
 1. Check the **Remember this password** checkbox.
 1. Click **Create**, and then **Close**.
-1. Repeat steps 1-3 above to open **Network and Sharing Center**.
-1. On the left, click **Change adapter settings**. Right-click on the new VPN entry and choose **Properties**.
+1. Return to **Network and Sharing Center**. On the left, click **Change adapter settings**.
+1. Right-click on the new VPN entry and choose **Properties**.
 1. Click the **Options** tab and uncheck **Include Windows logon domain**.
 1. Click the **Security** tab. Select "Layer 2 Tunneling Protocol with IPsec (L2TP/IPSec)" for the **Type of VPN**.
-1. Click **Allow these protocols**. Select "Challenge Handshake Authentication Protocol (CHAP)" and deselect all others.
+1. Click **Allow these protocols**. Check "Challenge Handshake Authentication Protocol (CHAP)" and uncheck all others.
 1. Click the **Advanced settings** button.
 1. Select **Use preshared key for authentication** and enter `Your VPN IPsec PSK` for the **Key**.
 1. Click **OK** to close the **Advanced settings**.
@@ -94,11 +95,11 @@ If you get an error when trying to connect, see <a href="#troubleshooting">Troub
 1. In the **Machine Authentication** section, select the **Shared Secret** radio button and enter `Your VPN IPsec PSK`.
 1. Click **OK**.
 1. Check the **Show VPN status in menu bar** checkbox.
-1. Click the **Advanced** button and make sure the **Send all traffic over VPN connection** checkbox is selected.
+1. Click the **Advanced** button and make sure the **Send all traffic over VPN connection** checkbox is checked.
 1. Click the **TCP/IP** tab, and make sure **Link-local only** is selected in the **Configure IPv6** section.
 1. Click **OK** to close the Advanced settings, and then click **Apply** to save the VPN connection information.
 
-You can connect to the VPN using the VPN icon in the menu bar, or by selecting the VPN in the Network section of System Preferences and choosing **Connect**. You can verify that your traffic is being routed properly by <a href="https://encrypted.google.com/search?q=my+ip" target="_blank">looking up your IP address on Google</a>. It should say "Your public IP address is `Your VPN Server IP`".
+To connect to the VPN: Use the menu bar icon, or go to the Network section of System Preferences, select the VPN and choose **Connect**. You can verify that your traffic is being routed properly by <a href="https://encrypted.google.com/search?q=my+ip" target="_blank">looking up your IP address on Google</a>. It should say "Your public IP address is `Your VPN Server IP`".
 
 ### Android ###
 1. Launch the **Settings** application.
@@ -151,6 +152,41 @@ Once connected, you will see a VPN icon in the status bar. You can verify that y
 
 Once connected, you will see a VPN icon overlay on the network status icon. You can verify that your traffic is being routed properly by <a href="https://encrypted.google.com/search?q=my+ip" target="_blank">looking up your IP address on Google</a>. It should say "Your public IP address is `Your VPN Server IP`".
 
+### Linux ###
+
+**Ubuntu and Debian:**
+
+Follow the steps in <a href="http://www.jasonernst.com/2016/06/21/l2tp-ipsec-vpn-on-ubuntu-16-04/" target="_blank">this tutorial</a>. Some corrections are required:
+
+1. In `xl2tpd.conf`, remove the line `# your vpn server goes here`. 
+1. In `options.l2tpd.client`, replace `require-mschap-v2` with `require-chap`.
+1. Replace the last command `sudo route add -net default gw <vpn server local ip>` with:
+```
+sudo route add default dev ppp0
+```
+
+If there is an error, check the output of `ifconfig` and replace `ppp0` above with `ppp1`, etc.
+
+Verify that your traffic is being routed properly:
+```
+wget -qO- http://whatismyip.akamai.com; echo
+```
+
+The above command should return `Your VPN Server IP`.
+
+To stop routing traffic via the VPN server:
+```
+sudo route del default dev ppp0
+```
+
+**CentOS 7:**
+
+Install the NetworkManager IPsec plug-in. For more information, see <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Securing_Virtual_Private_Networks.html" target="_blank">this document</a>.
+
+**Other Linux:**
+
+If your system provides the `strongswan` package, refer to the Ubuntu/Debian section above.
+
 ## Troubleshooting
 
 ### Windows Error 809
@@ -168,7 +204,7 @@ To fix this error, please follow these steps:
 1. Right-click on the wireless/network icon in system tray, select **Open Network and Sharing Center**.
 1. On the left, click **Change adapter settings**. Right-click on the new VPN and choose **Properties**.
 1. Click the **Security** tab. Select "Layer 2 Tunneling Protocol with IPsec (L2TP/IPSec)" for **Type of VPN**.
-1. Click **Allow these protocols**. Select the "Challenge Handshake Authentication Protocol (CHAP)" checkbox, and deselect all others.
+1. Click **Allow these protocols**. Check "Challenge Handshake Authentication Protocol (CHAP)" and uncheck all others.
 1. Click **OK** to save the VPN connection details.
 
 ![Select only CHAP in VPN connection properties](https://cloud.githubusercontent.com/assets/5104323/16024310/b113e9b6-3186-11e6-9e03-12f5455487ba.png)

@@ -11,10 +11,11 @@
 ---
 * 平台名称
   * [Windows](#windows)
-  * [OS X](#os-x)
+  * [OS X (macOS)](#os-x)
   * [Android](#android)
-  * [iOS](#ios)
+  * [iOS (iPhone/iPad)](#ios)
   * [Chromebook](#chromebook)
+  * [Linux](#linux)
 
 ### Windows ###
 
@@ -27,8 +28,8 @@
 1. 单击 **使用我的Internet连接 (VPN)**。
 1. 在 **Internet地址** 字段中输入`你的 VPN 服务器 IP`。
 1. 在 **目标名称** 字段中输入任意内容。单击 **创建**。
-1. 右键单击系统托盘中的无线/网络图标，选择 **打开网络与共享中心**。
-1. 单击左侧的 **更改适配器设置**。右键单击新的 VPN 连接，并选择 **属性**。
+1. 返回 **网络与共享中心**。单击左侧的 **更改适配器设置**。
+1. 右键单击新创建的 VPN 连接，并选择 **属性**。
 1. 单击 **安全** 选项卡，从 **VPN 类型** 下拉菜单中选择 "使用 IPsec 的第 2 层隧道协议 (L2TP/IPSec)"。
 1. 单击 **允许使用这些协议**。选中 "质询握手身份验证协议 (CHAP)" 复选框，并且取消选中所有其它项。
 1. 单击 **高级设置** 按钮。
@@ -54,8 +55,8 @@
 1. 在 **密码** 字段中输入`你的 VPN 密码`。
 1. 选中 **记住此密码** 复选框。
 1. 单击 **创建**，然后单击 **关闭** 按钮。
-1. 重复上面的第 1-3 步，打开 **网络与共享中心**。
-1. 单击左侧的 **更改适配器设置**。右键单击新的 VPN 连接，并选择 **属性**。
+1. 返回 **网络与共享中心**。单击左侧的 **更改适配器设置**。
+1. 右键单击新创建的 VPN 连接，并选择 **属性**。
 1. 单击 **选项** 选项卡，取消选中 **包含Windows登录域** 复选框。
 1. 单击 **安全** 选项卡，从 **VPN 类型** 下拉菜单中选择 "使用 IPsec 的第 2 层隧道协议 (L2TP/IPSec)"。
 1. 单击 **允许使用这些协议**。选中 "质询握手身份验证协议 (CHAP)" 复选框，并且取消选中所有其它项。
@@ -98,7 +99,7 @@
 1. 单击 **TCP/IP** 选项卡，并在 **配置IPv6** 部分中选择 **仅本地链接**。
 1. 单击 **好** 关闭高级设置，然后单击 **应用** 保存VPN连接信息。
 
-要连接到 VPN，你可以使用菜单栏中的 VPN 图标，或者在系统偏好设置的网络部分选择 VPN，并单击 **连接**。最后你可以到<a href="https://www.whatismyip.com" target="_blank">这里</a>检测你的 IP 地址，应该显示为`你的 VPN 服务器 IP`。
+要连接到 VPN： 使用菜单栏中的图标，或者打开系统偏好设置的网络部分，选择 VPN 并单击 **连接**。最后你可以到<a href="https://www.whatismyip.com" target="_blank">这里</a>检测你的 IP 地址，应该显示为`你的 VPN 服务器 IP`。
 
 ### Android ###
 1. 启动 **设置** 应用程序。
@@ -150,6 +151,41 @@ VPN 连接成功后，会在通知栏显示图标。最后你可以到<a href="h
 1. 单击 **连接**。
 
 VPN 连接成功后，网络状态图标上会出现 VPN 指示。最后你可以到<a href="https://www.whatismyip.com" target="_blank">这里</a>检测你的 IP 地址，应该显示为`你的 VPN 服务器 IP`。
+
+### Linux ###
+
+**Ubuntu and Debian:**
+
+按照 <a href="http://www.jasonernst.com/2016/06/21/l2tp-ipsec-vpn-on-ubuntu-16-04/" target="_blank">这个教程</a> 的步骤操作。需要更正以下项：
+
+1. 在文件 `xl2tpd.conf` 中，删除这一行 `# your vpn server goes here`。
+1. 在文件 `options.l2tpd.client` 中，将 `require-mschap-v2` 换成 `require-chap`。
+1. 替换最后一个命令 `sudo route add -net default gw <vpn server local ip>` 为：
+```
+sudo route add default dev ppp0
+```
+
+如果遇到错误，请检查 `ifconfig` 的输出并将上面的 `ppp0` 换成 `ppp1`，等等。
+
+检查 VPN 是否正常工作：
+```
+wget -qO- http://whatismyip.akamai.com; echo
+```
+
+以上命令应该返回 `你的 VPN 服务器 IP`。
+
+要停止通过 VPN 服务器发送数据：
+```
+sudo route del default dev ppp0
+```
+
+**CentOS 7:**
+
+安装 NetworkManager IPsec 插件。更多信息请见 <a href="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Security_Guide/sec-Securing_Virtual_Private_Networks.html" target="_blank">这个文档</a>。
+
+**Other Linux:**
+
+如果你的系统提供 `strongswan` 软件包，请参见上面的 Ubuntu/Debian 部分。
 
 ## 故障排除
 
